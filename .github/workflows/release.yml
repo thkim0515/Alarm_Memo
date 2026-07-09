@@ -1,0 +1,59 @@
+name: Release APK
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Release tag to publish (e.g. v1.0.0). Leave empty to use the pushed tag.'
+        required: false
+        default: ''
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Resolve tag name
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.version_name }}" ]; then
+            echo "name=${{ github.event.inputs.version_name }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "name=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=v0.0.0-manual-$(date +%Y%m%d%H%M%S)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build release APK
+        run: gradle assembleRelease --no-daemon
+
+      - name: Rename APK
+        run: |
+          mkdir -p release-artifacts
+          cp app/build/outputs/apk/release/app-release.apk "release-artifacts/AlarmMemo-${{ steps.tag.outputs.name }}.apk"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.name }}
+          name: AlarmMemo ${{ steps.tag.outputs.name }}
+          generate_release_notes: true
+          files: release-artifacts/*.apk
