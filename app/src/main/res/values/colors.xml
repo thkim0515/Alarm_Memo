@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#3F6EFF</color>
-    <color name="primary_dark">#2A4FD1</color>
-    <color name="primary_light">#DCE6FF</color>
-    <color name="accent">#FF6B4A</color>
+    <!-- Core brand palette: soft violet, warm coral accent -->
+    <color name="primary">#7C6CFF</color>
+    <color name="primary_dark">#5B4FE0</color>
+    <color name="primary_light">#EFEBFF</color>
+    <color name="accent">#FF6584</color>
+    <color name="accent_light">#FFE3E9</color>
 
-    <color name="background">#FFFFFF</color>
-    <color name="surface">#F5F6FA</color>
-    <color name="on_surface">#1C1C1E</color>
-    <color name="on_surface_secondary">#6B6B73</color>
-    <color name="divider">#E4E4E8</color>
+    <color name="gradient_start">#8A7CFF</color>
+    <color name="gradient_end">#5B4FE0</color>
 
-    <color name="ring_background">#101223</color>
+    <color name="background">#FAFAFF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_alt">#F3F1FF</color>
+    <color name="on_surface">#1B1B2F</color>
+    <color name="on_surface_secondary">#8A8AA3</color>
+    <color name="on_surface_disabled">#C3C3D5</color>
+    <color name="divider">#ECECF5</color>
+    <color name="card_stroke">#F0EFFB</color>
+
+    <color name="ring_background_start">#2C2A4A</color>
+    <color name="ring_background_end">#6C5CE7</color>
     <color name="ring_on_background">#FFFFFF</color>
+    <color name="ring_on_background_muted">#C7C3F5</color>
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="disabled">#C4C4CC</color>
+    <color name="disabled">#D8D8E8</color>
 </resources>
