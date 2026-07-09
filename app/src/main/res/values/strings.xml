@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">알람메모</string>
+
+    <!-- Alarm list -->
+    <string name="alarm_list_title">알람</string>
+    <string name="alarm_list_empty">등록된 알람이 없습니다.\n오른쪽 아래 버튼을 눌러 알람을 추가하세요.</string>
+    <string name="add_alarm">알람 추가</string>
+    <string name="delete_alarm">알람 삭제</string>
+    <string name="delete_alarm_confirm">이 알람을 삭제하시겠습니까?</string>
+    <string name="cancel">취소</string>
+    <string name="delete">삭제</string>
+    <string name="no_memo">메모 없음</string>
+
+    <!-- Alarm edit -->
+    <string name="edit_alarm_title_new">알람 추가</string>
+    <string name="edit_alarm_title_edit">알람 수정</string>
+    <string name="memo_hint">메모를 입력하세요 (예: 아침 운동)</string>
+    <string name="memo_label">메모</string>
+    <string name="vibration_label">진동</string>
+    <string name="vibration_off">없음</string>
+    <string name="vibration_weak">약함</string>
+    <string name="vibration_medium">보통</string>
+    <string name="vibration_strong">강함</string>
+    <string name="snooze_label">스누즈</string>
+    <string name="snooze_enable">스누즈 사용</string>
+    <string name="snooze_interval_label">스누즈 간격</string>
+    <string name="snooze_interval_format">%d분</string>
+    <string name="snooze_count_label">스누즈 반복 횟수</string>
+    <string name="snooze_count_format">%d회</string>
+    <string name="snooze_count_unlimited">무제한</string>
+    <string name="save">저장</string>
+
+    <!-- Alarm ring -->
+    <string name="slide_to_dismiss">밀어서 알람 해제</string>
+    <string name="snooze_button">스누즈</string>
+    <string name="snooze_remaining_format">스누즈 %1$d/%2$d</string>
+
+    <!-- Permissions -->
+    <string name="permission_exact_alarm_rationale">정확한 시간에 알람이 울리려면 \'알람 및 리마인더\' 권한이 필요합니다.</string>
+    <string name="grant_permission">권한 설정으로 이동</string>
+
+    <string name="notification_channel_alarm_name">알람</string>
+    <string name="notification_channel_alarm_desc">알람이 울릴 때 표시되는 알림입니다.</string>
+</resources>
