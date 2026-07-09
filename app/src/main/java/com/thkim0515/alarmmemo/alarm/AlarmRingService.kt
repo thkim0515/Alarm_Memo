@@ -8,6 +8,7 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -93,7 +94,9 @@ class AlarmRingService : Service() {
             currentAlarm = alarm
 
             startForeground(Constants.NOTIFICATION_ID_ALARM, buildNotification(alarm))
-            playSound()
+            if (alarm.soundEnabled) {
+                playSound(alarm.soundUri)
+            }
             startVibration(VibrationLevel.fromValue(alarm.vibrationLevel))
             scheduleAutoTimeout(alarm)
         }
@@ -153,11 +156,18 @@ class AlarmRingService : Service() {
         return builder.build()
     }
 
-    private fun playSound() {
+    private fun playSound(customSoundUri: String?) {
         stopSound()
-        try {
-            val alarmUri = RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALARM)
+        val customUri = customSoundUri?.let { runCatching { Uri.parse(it) }.getOrNull() }
+        if (customUri == null || !tryPlay(customUri)) {
+            val defaultUri = RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALARM)
                 ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            tryPlay(defaultUri)
+        }
+    }
+
+    private fun tryPlay(uri: Uri): Boolean {
+        return try {
             mediaPlayer = MediaPlayer().apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
@@ -165,13 +175,16 @@ class AlarmRingService : Service() {
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .build()
                 )
-                setDataSource(this@AlarmRingService, alarmUri)
+                setDataSource(this@AlarmRingService, uri)
                 isLooping = true
                 prepare()
                 start()
             }
+            true
         } catch (_: Exception) {
             // If sound fails to play, alarm still rings via vibration.
+            stopSound()
+            false
         }
     }
 
