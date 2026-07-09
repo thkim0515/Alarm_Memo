@@ -30,6 +30,12 @@
     <string name="day_sat">토</string>
     <string name="memo_hint">메모를 입력하세요 (예: 아침 운동)</string>
     <string name="memo_label">메모</string>
+    <string name="sound_label">소리</string>
+    <string name="sound_enable">소리 사용 (끄면 진동만 울림)</string>
+    <string name="sound_choose_label">벨소리</string>
+    <string name="sound_default">기본 알람음</string>
+    <string name="sound_choose_button">노래 선택</string>
+    <string name="sound_reset_button">기본으로</string>
     <string name="vibration_label">진동</string>
     <string name="vibration_off">없음</string>
     <string name="vibration_weak">약함</string>

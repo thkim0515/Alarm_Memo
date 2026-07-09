@@ -1,11 +1,15 @@
 package com.thkim0515.alarmmemo.ui.edit
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.view.Gravity
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -33,6 +37,16 @@ class AlarmEditActivity : AppCompatActivity() {
 
     private val dayToggles = mutableMapOf<Int, TextView>()
     private var repeatDays = 0
+    private var soundUri: String? = null
+
+    private val chooseSoundLauncher =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) {
+                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                soundUri = uri.toString()
+                updateSelectedSoundText()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,8 +61,10 @@ class AlarmEditActivity : AppCompatActivity() {
 
         setupDayToggles()
         setupSpinners()
+        setupSoundToggle()
         setupSnoozeToggle()
         updateRepeatSummary()
+        updateSelectedSoundText()
 
         binding.toolbar.title = getString(
             if (alarmId >= 0) R.string.edit_alarm_title_edit else R.string.edit_alarm_title_new
@@ -119,6 +135,32 @@ class AlarmEditActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupSoundToggle() {
+        binding.switchSound.setOnCheckedChangeListener { _, isChecked ->
+            binding.layoutSoundOptions.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
+        binding.buttonChooseSound.setOnClickListener {
+            chooseSoundLauncher.launch(arrayOf("audio/*"))
+        }
+        binding.buttonResetSound.setOnClickListener {
+            soundUri = null
+            updateSelectedSoundText()
+        }
+    }
+
+    private fun updateSelectedSoundText() {
+        binding.textSelectedSound.text = soundUri?.let { displayNameFor(Uri.parse(it)) }
+            ?: getString(R.string.sound_default)
+    }
+
+    private fun displayNameFor(uri: Uri): String {
+        return runCatching {
+            contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) cursor.getString(0) else null
+            }
+        }.getOrNull() ?: uri.lastPathSegment ?: getString(R.string.sound_default)
+    }
+
     private fun loadAlarm(id: Long) {
         lifecycleScope.launch {
             val alarm = repository.getAlarm(id) ?: return@launch
@@ -140,6 +182,11 @@ class AlarmEditActivity : AppCompatActivity() {
             VibrationLevel.STRONG -> R.id.radioVibrationStrong
         }
         binding.radioGroupVibration.check(radioId)
+
+        binding.switchSound.isChecked = alarm.soundEnabled
+        binding.layoutSoundOptions.visibility = if (alarm.soundEnabled) View.VISIBLE else View.GONE
+        soundUri = alarm.soundUri
+        updateSelectedSoundText()
 
         binding.switchSnooze.isChecked = alarm.snoozeEnabled
         binding.layoutSnoozeOptions.visibility = if (alarm.snoozeEnabled) View.VISIBLE else View.GONE
@@ -174,7 +221,9 @@ class AlarmEditActivity : AppCompatActivity() {
             snoozeIntervalMinutes = snoozeInterval,
             snoozeMaxCount = snoozeCount,
             isEnabled = true,
-            repeatDays = repeatDays
+            repeatDays = repeatDays,
+            soundEnabled = binding.switchSound.isChecked,
+            soundUri = soundUri
         )
 
         lifecycleScope.launch {

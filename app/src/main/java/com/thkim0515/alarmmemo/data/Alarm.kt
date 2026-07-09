@@ -17,7 +17,10 @@ data class Alarm(
     val snoozeMaxCount: Int = 3,
     val isEnabled: Boolean = true,
     /** Bitmask of [Calendar.SUNDAY]..[Calendar.SATURDAY] bits. 0 means a one-time alarm. */
-    val repeatDays: Int = 0
+    val repeatDays: Int = 0,
+    val soundEnabled: Boolean = true,
+    /** content:// URI of a user-picked sound/song. Null means the device's default alarm sound. */
+    val soundUri: String? = null
 ) {
     val timeText: String
         get() = "%02d:%02d".format(hour, minute)
