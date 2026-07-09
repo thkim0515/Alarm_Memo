@@ -9,6 +9,7 @@ import com.thkim0515.alarmmemo.R
 import com.thkim0515.alarmmemo.data.Alarm
 import com.thkim0515.alarmmemo.data.VibrationLevel
 import com.thkim0515.alarmmemo.databinding.ItemAlarmBinding
+import com.thkim0515.alarmmemo.util.DayOfWeek
 
 class AlarmListAdapter(
     private val onClick: (Alarm) -> Unit,
@@ -39,23 +40,16 @@ class AlarmListAdapter(
                 VibrationLevel.MEDIUM -> context.getString(R.string.vibration_medium)
                 VibrationLevel.STRONG -> context.getString(R.string.vibration_strong)
             }
-            val snoozeText = if (alarm.snoozeEnabled) {
-                val interval = context.getString(R.string.snooze_interval_format, alarm.snoozeIntervalMinutes)
-                val count = context.getString(R.string.snooze_count_format, alarm.snoozeMaxCount)
-                "${context.getString(R.string.snooze_label)} $interval · $count"
-            } else {
-                null
-            }
-            binding.textDetail.text = listOfNotNull(
-                "${context.getString(R.string.vibration_label)} $vibrationLabel",
-                snoozeText
-            ).joinToString(" · ")
+            val repeatSummary = DayOfWeek.repeatSummary(context, alarm.repeatDays, short = true)
+            binding.textDetail.text = "$repeatSummary · ${context.getString(R.string.vibration_label)} $vibrationLabel"
 
             binding.switchEnabled.setOnCheckedChangeListener(null)
             binding.switchEnabled.isChecked = alarm.isEnabled
             binding.switchEnabled.setOnCheckedChangeListener { _, isChecked ->
                 onToggle(alarm, isChecked)
             }
+
+            binding.root.alpha = if (alarm.isEnabled) 1f else 0.55f
 
             binding.root.setOnClickListener { onClick(alarm) }
             binding.root.setOnLongClickListener {

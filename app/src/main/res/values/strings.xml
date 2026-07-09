@@ -15,6 +15,19 @@
     <!-- Alarm edit -->
     <string name="edit_alarm_title_new">알람 추가</string>
     <string name="edit_alarm_title_edit">알람 수정</string>
+    <string name="repeat_label">반복</string>
+    <string name="repeat_once">반복 안 함 · 한 번 울리고 꺼짐</string>
+    <string name="repeat_once_short">안 함</string>
+    <string name="repeat_every_day">매일</string>
+    <string name="repeat_weekdays">평일</string>
+    <string name="repeat_weekend">주말</string>
+    <string name="day_sun">일</string>
+    <string name="day_mon">월</string>
+    <string name="day_tue">화</string>
+    <string name="day_wed">수</string>
+    <string name="day_thu">목</string>
+    <string name="day_fri">금</string>
+    <string name="day_sat">토</string>
     <string name="memo_hint">메모를 입력하세요 (예: 아침 운동)</string>
     <string name="memo_label">메모</string>
     <string name="vibration_label">진동</string>

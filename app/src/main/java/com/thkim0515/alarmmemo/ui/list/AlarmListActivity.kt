@@ -48,7 +48,7 @@ class AlarmListActivity : AppCompatActivity() {
 
         viewModel.alarms.observe(this) { alarms ->
             adapter.submitList(alarms)
-            binding.emptyText.visibility = if (alarms.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+            binding.emptyState.visibility = if (alarms.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
         }
 
         requestNotificationPermissionIfNeeded()

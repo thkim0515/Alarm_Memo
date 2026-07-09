@@ -1,9 +1,13 @@
 package com.thkim0515.alarmmemo.ui.edit
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.thkim0515.alarmmemo.R
 import com.thkim0515.alarmmemo.alarm.AlarmScheduler
@@ -12,6 +16,7 @@ import com.thkim0515.alarmmemo.data.AlarmRepository
 import com.thkim0515.alarmmemo.data.VibrationLevel
 import com.thkim0515.alarmmemo.databinding.ActivityAlarmEditBinding
 import com.thkim0515.alarmmemo.util.Constants
+import com.thkim0515.alarmmemo.util.DayOfWeek
 import kotlinx.coroutines.launch
 
 class AlarmEditActivity : AppCompatActivity() {
@@ -26,6 +31,9 @@ class AlarmEditActivity : AppCompatActivity() {
     private val snoozeIntervalOptions = listOf(5, 10, 15, 30)
     private val snoozeCountOptions = listOf(1, 2, 3, 5, 10)
 
+    private val dayToggles = mutableMapOf<Int, TextView>()
+    private var repeatDays = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAlarmEditBinding.inflate(layoutInflater)
@@ -37,8 +45,10 @@ class AlarmEditActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
         binding.timePicker.setIs24HourView(true)
 
+        setupDayToggles()
         setupSpinners()
         setupSnoozeToggle()
+        updateRepeatSummary()
 
         binding.toolbar.title = getString(
             if (alarmId >= 0) R.string.edit_alarm_title_edit else R.string.edit_alarm_title_new
@@ -49,6 +59,45 @@ class AlarmEditActivity : AppCompatActivity() {
         }
 
         binding.buttonSave.setOnClickListener { save() }
+    }
+
+    private fun setupDayToggles() {
+        val size = (40 * resources.displayMetrics.density).toInt()
+        DayOfWeek.ORDERED_DAYS.forEach { calendarDay ->
+            val toggle = TextView(this).apply {
+                text = DayOfWeek.shortLabel(this@AlarmEditActivity, calendarDay)
+                gravity = Gravity.CENTER
+                textSize = 14f
+                setTextColor(ContextCompat.getColorStateList(this@AlarmEditActivity, R.color.day_toggle_text))
+                background = ContextCompat.getDrawable(this@AlarmEditActivity, R.drawable.bg_day_toggle)
+                isSelected = false
+                setOnClickListener {
+                    isSelected = !isSelected
+                    repeatDays = if (isSelected) {
+                        repeatDays or Alarm.dayBit(calendarDay)
+                    } else {
+                        repeatDays and Alarm.dayBit(calendarDay).inv()
+                    }
+                    updateRepeatSummary()
+                }
+            }
+            val params = LinearLayout.LayoutParams(size, size).apply {
+                marginStart = (4 * resources.displayMetrics.density).toInt()
+                marginEnd = (4 * resources.displayMetrics.density).toInt()
+            }
+            binding.dayToggleRow.addView(toggle, params)
+            dayToggles[calendarDay] = toggle
+        }
+    }
+
+    private fun setSelectedDays(mask: Int) {
+        repeatDays = mask
+        dayToggles.forEach { (day, view) -> view.isSelected = (mask and Alarm.dayBit(day)) != 0 }
+        updateRepeatSummary()
+    }
+
+    private fun updateRepeatSummary() {
+        binding.textRepeatSummary.text = DayOfWeek.repeatSummary(this, repeatDays)
     }
 
     private fun setupSpinners() {
@@ -82,6 +131,7 @@ class AlarmEditActivity : AppCompatActivity() {
         binding.timePicker.hour = alarm.hour
         binding.timePicker.minute = alarm.minute
         binding.editMemo.setText(alarm.memo)
+        setSelectedDays(alarm.repeatDays)
 
         val radioId = when (VibrationLevel.fromValue(alarm.vibrationLevel)) {
             VibrationLevel.OFF -> R.id.radioVibrationOff
@@ -123,7 +173,8 @@ class AlarmEditActivity : AppCompatActivity() {
             snoozeEnabled = snoozeEnabled,
             snoozeIntervalMinutes = snoozeInterval,
             snoozeMaxCount = snoozeCount,
-            isEnabled = true
+            isEnabled = true,
+            repeatDays = repeatDays
         )
 
         lifecycleScope.launch {

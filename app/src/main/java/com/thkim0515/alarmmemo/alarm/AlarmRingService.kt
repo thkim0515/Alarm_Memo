@@ -248,8 +248,12 @@ class AlarmRingService : Service() {
         val alarm = currentAlarm
         if (alarm != null) {
             snoozeCounts.remove(alarm.id)
-            if (alarm.isEnabled) {
-                scheduler?.schedule(alarm)
+            if (alarm.isRepeating) {
+                if (alarm.isEnabled) {
+                    scheduler?.schedule(alarm)
+                }
+            } else {
+                serviceScope.launch { repository?.update(alarm.copy(isEnabled = false)) }
             }
         }
         stopRingingAndFinish()
